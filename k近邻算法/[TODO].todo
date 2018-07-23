@@ -1,0 +1,53 @@
+##算法思想改进和优化（大量参考外部文章）
+改进思想：k-近邻最大的消耗原有是因为它是一个消极的算法，所有的计算都在分类阶段进行计算。
+所以改进的方案有两个入口，一个是训练阶段，一个是分类阶段
+☐ 1、提高算法效率
+    ☐ 训练阶段
+        ✔ 减小计算范围，和计算复杂度 @LuoJianHui done(2018-06-13 00:02)
+            ✔ 一种改进的k-近邻算法,结合消极和积极的算法 @LuoJianHui done(2018-06-13 00:02)
+        ✔ 构建KDTree，NBTree等树结构，使得分类时，快速查找到相关的邻居点 @LuoJianHui done(2018-06-13 23:50)
+            ✔ 改进思想暂时无 @LuoJianHui done(2018-06-13 23:50)
+            ✔ 实例暂时无 @LuoJianHui done(2018-06-13 23:50)
+            ✔ 问题和缺点 @LuoJianHui done(2018-06-13 23:55)
+        ✔ 去除无用的数据 @LuoJianHui done(2018-06-23 07:10)
+            ✔ 改进思想暂时无 @LuoJianHui done(2018-06-23 07:11)
+            ✔ 实例暂时无 @LuoJianHui done(2018-06-23 07:11)
+            ✔ 问题和缺点 @LuoJianHui done(2018-06-23 07:11)
+    ☐ 分类阶段
+
+☐ 提高算法的精度
+    ☐ 训练阶段
+        ✔ 降低维度 @LuoJianHui done(2018-06-22 17:24)
+            ✔ 暂无实例 @LuoJianHui done(2018-06-22 17:24)
+            ✔ 问题和缺点 @LuoJianHui done(2018-06-22 17:24)
+
+    ☐ 分类阶段
+        ✔ 距离的选择 @LuoJianHui done(2018-06-27 15:03)
+            ✔ 改进思想暂时无 @LuoJianHui done(2018-06-27 15:03)
+            ✔ 实例暂时无 @LuoJianHui done(2018-06-27 15:03)
+            ✔ 问题和缺点 @LuoJianHui done(2018-06-27 15:03)
+        ✔ k值的选取 @LuoJianHui done(2018-06-27 15:03)
+            ✔ 改进思想暂时无 @LuoJianHui done(2018-06-27 15:03)
+            ✔ 实例暂时无 @LuoJianHui done(2018-06-27 15:03)
+            ✔ 问题和缺点 @LuoJianHui done(2018-06-27 15:03)
+        ✔ 改进投票机制 @LuoJianHui done(2018-06-23 07:11)
+            ✔ 距离加权的投票 实例 @LuoJianHui done(2018-06-23 07:11)
+            ✔ 问题和缺点 @LuoJianHui done(2018-06-23 07:11)
+算法改进实现目标
+    ✔ 1、提高算法效率 @LuoJianHui done(2018-07-17 00:25)
+        ✔ 构建KDTree，高纬空间快速定位邻居 @LuoJianHui done(2018-07-17 00:08)
+        ✔ BDTree，实际就是二叉搜索树，BST树 @LuoJianHui done(2018-07-17 00:25)
+    ✔ 2、提交算法的经度 @LuoJianHui done(2018-07-21 17:08)
+        ✔ 加权距离（从kdtree中尝试添加下） @LuoJianHui done(2018-07-21 17:08)
+        ✔ 不同的距离计算公式。可以用多种距离来 @LuoJianHui done(2018-07-21 17:08)
+
+算法实例：
+    ✔ 改进约会网站 @LuoJianHui done(2018-07-21 16:40)
+    ✔ 手写识别系统 @LuoJianHui done(2018-07-21 16:40)
+
+总结：
+    ☐ knn运用实例
+    ☐ knn改进思路和方法
+    ☐ knn运用过程
+    ☐ knn运用的必须条件
+    ☐ knn可能运用的场景

@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>朴素贝叶斯.md</title><script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    extensions: ["[a11y]/accessibility-menu.js"],
+    TeX: {
+  "Macros": {},
+  "equationNumbers": {},
+  "extensions": [
+    "AMSmath.js",
+    "AMSsymbols.js",
+    "noErrors.js",
+    "noUndefined.js"
+  ]
+},
+    showMathMenu: true
+  });
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js"></script>
+    <style>body { padding: 0; margin: 0; }
+.markdown-preview-plus-view:not([data-use-github-style]) {
+  padding: 2em;
+  font-size: 1.2em;
+  color: white;
+  background-color: #272822;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) > :first-child {
+  margin-top: 0;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h1,
+.markdown-preview-plus-view:not([data-use-github-style]) h2,
+.markdown-preview-plus-view:not([data-use-github-style]) h3,
+.markdown-preview-plus-view:not([data-use-github-style]) h4,
+.markdown-preview-plus-view:not([data-use-github-style]) h5,
+.markdown-preview-plus-view:not([data-use-github-style]) h6 {
+  line-height: 1.2;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: #ffffff;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h1 {
+  font-size: 2.4em;
+  font-weight: 300;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h2 {
+  font-size: 1.8em;
+  font-weight: 400;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h3 {
+  font-size: 1.5em;
+  font-weight: 500;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h4 {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h5 {
+  font-size: 1.1em;
+  font-weight: 600;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) h6 {
+  font-size: 1em;
+  font-weight: 600;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) strong {
+  color: #ffffff;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) del {
+  color: #d6d6d6;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) a,
+.markdown-preview-plus-view:not([data-use-github-style]) a code {
+  color: white;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) img {
+  max-width: 100%;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) > p {
+  margin-top: 0;
+  margin-bottom: 1.5em;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) > ul,
+.markdown-preview-plus-view:not([data-use-github-style]) > ol {
+  margin-bottom: 1.5em;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) blockquote {
+  margin: 1.5em 0;
+  font-size: inherit;
+  color: #d6d6d6;
+  border-color: #525447;
+  border-width: 4px;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) hr {
+  margin: 3em 0;
+  border-top: 2px dashed #525447;
+  background: none;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) table {
+  margin: 1.5em 0;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) th {
+  color: #ffffff;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) th,
+.markdown-preview-plus-view:not([data-use-github-style]) td {
+  padding: 0.66em 1em;
+  border: 1px solid #525447;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) pre,
+.markdown-preview-plus-view:not([data-use-github-style]) code {
+  color: #ffffff;
+  background-color: #3d3e35;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) pre,
+.markdown-preview-plus-view:not([data-use-github-style]) pre.editor-colors {
+  margin: 1.5em 0;
+  padding: 1em;
+  font-size: 0.92em;
+  border-radius: 3px;
+  background-color: #32332b;
+}
+.markdown-preview-plus-view:not([data-use-github-style]) kbd {
+  color: #ffffff;
+  border: 1px solid #525447;
+  border-bottom: 2px solid #424439;
+  background-color: #3d3e35;
+}
+
+@include 'style-variables';
+.markdown-preview-plus-view {
+  display: block;
+  overflow-x: hidden;
+}
+.markdown-preview-plus-view .emoji {
+  max-width: 1em !important;
+}
+.markdown-preview-plus-view del {
+  text-decoration: none;
+  position: relative;
+}
+.markdown-preview-plus-view del::after {
+  border-bottom: 1px solid black;
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 50%;
+}
+.markdown-preview-plus-view .flash {
+  -webkit-animation: flash 1s ease-out;
+  -webkit-animation-iteration-count: 1;
+  outline: 1px solid rgba(255, 0, 0, 0);
+}
+@-webkit-keyframes flash {
+  0% {
+    outline-color: rgba(255, 0, 0, 0);
+  }
+  50% {
+    outline-color: #ff0000;
+  }
+  100% {
+    outline-color: rgba(255, 0, 0, 0);
+  }
+}
+.markdown-preview-plus-view pre.editor-colors {
+  flex-direction: column;
+  overflow: auto;
+}
+@media print {
+  .markdown-preview-plus-view pre.editor-colors {
+    overflow: visible !important;
+  }
+  .markdown-preview-plus-view pre.editor-colors .line {
+    white-space: pre-wrap !important;
+  }
+}
+.markdown-preview-plus-view ul.contains-task-list li.task-list-item {
+  position: relative;
+  list-style-type: none;
+}
+.markdown-preview-plus-view ul.contains-task-list li.task-list-item input.task-list-item-checkbox {
+  position: absolute;
+  transform: translateX(-100%);
+  width: 30px;
+}
+
+body.markdown-preview-plus-view[data-use-github-style] {
+  overflow: initial !important;
+}
+.markdown-preview-plus-view[data-use-github-style] {
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  line-height: 1.6;
+  word-wrap: break-word;
+  padding: 30px;
+  font-size: 16px;
+  color: #333;
+  background-color: #fff;
+}
+.markdown-preview-plus-view[data-use-github-style] > *:first-child {
+  margin-top: 0 !important;
+}
+.markdown-preview-plus-view[data-use-github-style] > *:last-child {
+  margin-bottom: 0 !important;
+}
+.markdown-preview-plus-view[data-use-github-style] a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+.markdown-preview-plus-view[data-use-github-style] .absent {
+  color: #c00;
+}
+.markdown-preview-plus-view[data-use-github-style] .anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+.markdown-preview-plus-view[data-use-github-style] .anchor:focus {
+  outline: none;
+}
+.markdown-preview-plus-view[data-use-github-style] h1,
+.markdown-preview-plus-view[data-use-github-style] h2,
+.markdown-preview-plus-view[data-use-github-style] h3,
+.markdown-preview-plus-view[data-use-github-style] h4,
+.markdown-preview-plus-view[data-use-github-style] h5,
+.markdown-preview-plus-view[data-use-github-style] h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+.markdown-preview-plus-view[data-use-github-style] h1 .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h2 .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h3 .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h4 .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h5 .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+.markdown-preview-plus-view[data-use-github-style] h1:hover .anchor,
+.markdown-preview-plus-view[data-use-github-style] h2:hover .anchor,
+.markdown-preview-plus-view[data-use-github-style] h3:hover .anchor,
+.markdown-preview-plus-view[data-use-github-style] h4:hover .anchor,
+.markdown-preview-plus-view[data-use-github-style] h5:hover .anchor,
+.markdown-preview-plus-view[data-use-github-style] h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  text-decoration: none;
+}
+.markdown-preview-plus-view[data-use-github-style] h1:hover .anchor .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h2:hover .anchor .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h3:hover .anchor .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h4:hover .anchor .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h5:hover .anchor .octicon-link,
+.markdown-preview-plus-view[data-use-github-style] h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+.markdown-preview-plus-view[data-use-github-style] h1 tt,
+.markdown-preview-plus-view[data-use-github-style] h2 tt,
+.markdown-preview-plus-view[data-use-github-style] h3 tt,
+.markdown-preview-plus-view[data-use-github-style] h4 tt,
+.markdown-preview-plus-view[data-use-github-style] h5 tt,
+.markdown-preview-plus-view[data-use-github-style] h6 tt,
+.markdown-preview-plus-view[data-use-github-style] h1 code,
+.markdown-preview-plus-view[data-use-github-style] h2 code,
+.markdown-preview-plus-view[data-use-github-style] h3 code,
+.markdown-preview-plus-view[data-use-github-style] h4 code,
+.markdown-preview-plus-view[data-use-github-style] h5 code,
+.markdown-preview-plus-view[data-use-github-style] h6 code {
+  font-size: inherit;
+}
+.markdown-preview-plus-view[data-use-github-style] h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+.markdown-preview-plus-view[data-use-github-style] h1 .anchor {
+  line-height: 1;
+}
+.markdown-preview-plus-view[data-use-github-style] h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+.markdown-preview-plus-view[data-use-github-style] h2 .anchor {
+  line-height: 1;
+}
+.markdown-preview-plus-view[data-use-github-style] h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+.markdown-preview-plus-view[data-use-github-style] h3 .anchor {
+  line-height: 1.2;
+}
+.markdown-preview-plus-view[data-use-github-style] h4 {
+  font-size: 1.25em;
+}
+.markdown-preview-plus-view[data-use-github-style] h4 .anchor {
+  line-height: 1.2;
+}
+.markdown-preview-plus-view[data-use-github-style] h5 {
+  font-size: 1em;
+}
+.markdown-preview-plus-view[data-use-github-style] h5 .anchor {
+  line-height: 1.1;
+}
+.markdown-preview-plus-view[data-use-github-style] h6 {
+  font-size: 1em;
+  color: #777;
+}
+.markdown-preview-plus-view[data-use-github-style] h6 .anchor {
+  line-height: 1.1;
+}
+.markdown-preview-plus-view[data-use-github-style] p,
+.markdown-preview-plus-view[data-use-github-style] blockquote,
+.markdown-preview-plus-view[data-use-github-style] ul,
+.markdown-preview-plus-view[data-use-github-style] ol,
+.markdown-preview-plus-view[data-use-github-style] dl,
+.markdown-preview-plus-view[data-use-github-style] table,
+.markdown-preview-plus-view[data-use-github-style] pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+.markdown-preview-plus-view[data-use-github-style] hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+.markdown-preview-plus-view[data-use-github-style] ul,
+.markdown-preview-plus-view[data-use-github-style] ol {
+  padding-left: 2em;
+}
+.markdown-preview-plus-view[data-use-github-style] ul.no-list,
+.markdown-preview-plus-view[data-use-github-style] ol.no-list {
+  padding: 0;
+  list-style-type: none;
+}
+.markdown-preview-plus-view[data-use-github-style] ul ul,
+.markdown-preview-plus-view[data-use-github-style] ul ol,
+.markdown-preview-plus-view[data-use-github-style] ol ol,
+.markdown-preview-plus-view[data-use-github-style] ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.markdown-preview-plus-view[data-use-github-style] li > p {
+  margin-top: 16px;
+}
+.markdown-preview-plus-view[data-use-github-style] dl {
+  padding: 0;
+}
+.markdown-preview-plus-view[data-use-github-style] dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+.markdown-preview-plus-view[data-use-github-style] dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+.markdown-preview-plus-view[data-use-github-style] blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+.markdown-preview-plus-view[data-use-github-style] blockquote > :first-child {
+  margin-top: 0;
+}
+.markdown-preview-plus-view[data-use-github-style] blockquote > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview-plus-view[data-use-github-style] table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+.markdown-preview-plus-view[data-use-github-style] table th {
+  font-weight: bold;
+}
+.markdown-preview-plus-view[data-use-github-style] table th,
+.markdown-preview-plus-view[data-use-github-style] table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+.markdown-preview-plus-view[data-use-github-style] table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+.markdown-preview-plus-view[data-use-github-style] table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+.markdown-preview-plus-view[data-use-github-style] img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.markdown-preview-plus-view[data-use-github-style] .emoji {
+  max-width: none;
+}
+.markdown-preview-plus-view[data-use-github-style] span.frame {
+  display: block;
+  overflow: hidden;
+}
+.markdown-preview-plus-view[data-use-github-style] span.frame > span {
+  display: block;
+  float: left;
+  width: auto;
+  padding: 7px;
+  margin: 13px 0 0;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+.markdown-preview-plus-view[data-use-github-style] span.frame span img {
+  display: block;
+  float: left;
+}
+.markdown-preview-plus-view[data-use-github-style] span.frame span span {
+  display: block;
+  padding: 5px 0 0;
+  clear: both;
+  color: #333;
+}
+.markdown-preview-plus-view[data-use-github-style] span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+.markdown-preview-plus-view[data-use-github-style] span.align-center > span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: center;
+}
+.markdown-preview-plus-view[data-use-github-style] span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+.markdown-preview-plus-view[data-use-github-style] span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+.markdown-preview-plus-view[data-use-github-style] span.align-right > span {
+  display: block;
+  margin: 13px 0 0;
+  overflow: hidden;
+  text-align: right;
+}
+.markdown-preview-plus-view[data-use-github-style] span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+.markdown-preview-plus-view[data-use-github-style] span.float-left {
+  display: block;
+  float: left;
+  margin-right: 13px;
+  overflow: hidden;
+}
+.markdown-preview-plus-view[data-use-github-style] span.float-left span {
+  margin: 13px 0 0;
+}
+.markdown-preview-plus-view[data-use-github-style] span.float-right {
+  display: block;
+  float: right;
+  margin-left: 13px;
+  overflow: hidden;
+}
+.markdown-preview-plus-view[data-use-github-style] span.float-right > span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: right;
+}
+.markdown-preview-plus-view[data-use-github-style] code,
+.markdown-preview-plus-view[data-use-github-style] tt {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 3px;
+}
+.markdown-preview-plus-view[data-use-github-style] code:before,
+.markdown-preview-plus-view[data-use-github-style] tt:before,
+.markdown-preview-plus-view[data-use-github-style] code:after,
+.markdown-preview-plus-view[data-use-github-style] tt:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+.markdown-preview-plus-view[data-use-github-style] code br,
+.markdown-preview-plus-view[data-use-github-style] tt br {
+  display: none;
+}
+.markdown-preview-plus-view[data-use-github-style] del code {
+  text-decoration: inherit;
+}
+.markdown-preview-plus-view[data-use-github-style] pre > code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+.markdown-preview-plus-view[data-use-github-style] .highlight {
+  margin-bottom: 16px;
+}
+.markdown-preview-plus-view[data-use-github-style] .highlight pre,
+.markdown-preview-plus-view[data-use-github-style] pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+.markdown-preview-plus-view[data-use-github-style] .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+.markdown-preview-plus-view[data-use-github-style] pre {
+  word-wrap: normal;
+}
+.markdown-preview-plus-view[data-use-github-style] pre code,
+.markdown-preview-plus-view[data-use-github-style] pre tt {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+.markdown-preview-plus-view[data-use-github-style] pre code:before,
+.markdown-preview-plus-view[data-use-github-style] pre tt:before,
+.markdown-preview-plus-view[data-use-github-style] pre code:after,
+.markdown-preview-plus-view[data-use-github-style] pre tt:after {
+  content: normal;
+}
+.markdown-preview-plus-view[data-use-github-style] kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 11px;
+  line-height: 10px;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fcfcfc;
+  border: solid 1px #ccc;
+  border-bottom-color: #bbb;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #bbb;
+}
+.markdown-preview-plus-view[data-use-github-style] a {
+  color: #337ab7;
+}
+.markdown-preview-plus-view[data-use-github-style] pre,
+.markdown-preview-plus-view[data-use-github-style] code {
+  color: inherit;
+}
+.markdown-preview-plus-view[data-use-github-style] pre,
+.markdown-preview-plus-view[data-use-github-style] pre.editor-colors {
+  padding: 0.8em 1em;
+  margin-bottom: 1em;
+  font-size: 0.85em;
+  border-radius: 4px;
+  overflow: auto;
+}
+
+@keyframes RotatingBackground {
+  0% {
+    background-position-x: 0%;
+  }
+  100% {
+    background-position-x: 100%;
+  }
+}
+
+.debugger-breakpoint-icon::before,
+.debugger-shadow-breakpoint-icon::before {
+  font-family: 'Octicons Regular';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-decoration: none;
+  font-size: 130%;
+  width: 130%;
+  height: 130%;
+  content: "\f052";
+}
+.debugger-breakpoint-icon,
+.debugger-breakpoint-icon-disabled,
+.debugger-breakpoint-icon-unresolved,
+.debugger-breakpoint-icon-conditional,
+.debugger-shadow-breakpoint-icon {
+  text-align: center;
+  display: block;
+  width: 0.8em;
+  cursor: pointer;
+}
+.debugger-breakpoint-icon-nonconditional {
+  color: #5293d8;
+}
+.debugger-breakpoint-icon-conditional {
+  color: #e08628;
+}
+.debugger-breakpoint-icon-disabled {
+  position: relative;
+  top: -4px;
+  left: 2px;
+}
+.debugger-breakpoint-icon-disabled::before {
+  font-family: 'Octicons Regular';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-decoration: none;
+  font-size: 78%;
+  width: 78%;
+  height: 78%;
+  content: "\f084";
+}
+.debugger-breakpoint-icon-unresolved {
+  position: relative;
+  top: -2px;
+}
+.debugger-breakpoint-icon-unresolved::before {
+  font-family: 'Octicons Regular';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-decoration: none;
+  font-size: 80%;
+  width: 80%;
+  height: 80%;
+  content: "\f0e8";
+}
+.debugger-shadow-breakpoint-icon {
+  color: rgba(82, 147, 216, 0.4);
+}
+.debugger-current-line-highlight {
+  background: linear-gradient(to bottom, rgba(0, 152, 255, 0.8) 0%, rgba(0, 152, 255, 0.8) 5%, rgba(0, 152, 255, 0.3) 5%, rgba(0, 152, 255, 0.3) 95%, rgba(0, 152, 255, 0.8) 95%, rgba(0, 152, 255, 0.8) 100%);
+}
+
+.gutter[gutter-name=diagnostics-gutter] {
+  width: 0.7em;
+}
+.diagnostics-gutter-ui-item {
+  display: flex;
+}
+.diagnostics-gutter-ui-item .icon {
+  display: flex;
+  width: 0.7em;
+  height: 0.7em;
+  font-size: 0.7em;
+  align-self: center;
+}
+.diagnostics-gutter-ui-item .icon::before {
+  width: 1em;
+  height: 1em;
+  font-size: 1em;
+  margin: 0;
+  align-self: center;
+}
+.diagnostics-gutter-ui-item.diagnostics-gutter-ui-gutter-info,
+.diagnostics-gutter-ui-item.diagnostics-gutter-ui-gutter-review {
+  color: #5293d8;
+}
+.diagnostics-gutter-ui-item.diagnostics-gutter-ui-gutter-error {
+  color: #c00;
+}
+.diagnostics-gutter-ui-item.diagnostics-gutter-ui-gutter-action,
+.diagnostics-gutter-ui-item.diagnostics-gutter-ui-gutter-warning {
+  color: #e08628;
+}
+
+.bracket-matcher .region {
+  border-bottom: 1px dotted lime;
+  position: absolute;
+}
+.line-number.bracket-matcher.bracket-matcher {
+  color: #868686;
+  background-color: #39382e;
+}
+
+.markdown-themeable-pdf-page-break {
+  border-top: 2px dotted #0098ff;
+}
+.markdown-themeable-pdf-page-break span {
+  opacity: .35;
+}
+
+.spell-check-misspelling .region {
+  border-bottom: 2px dotted rgba(255, 51, 51, 0.75);
+}
+.spell-check-corrections {
+  width: 25em !important;
+}
+
+pre.editor-colors.editor .gutter .line-number.line-number-green {
+  color: #fff;
+  background-color: #A6E22E;
+}
+pre.editor-colors.editor .gutter .line-number.line-number-blue {
+  color: #fff;
+  background-color: #66D9EF;
+}
+pre.editor-colors.editor .gutter .line-number.line-number-red {
+  color: #fff;
+  background-color: #cc6666;
+}
+.line.line-green {
+  background-color: #A6E22E;
+}
+.line.line-blue {
+  background-color: #66D9EF;
+}
+.line.line-red {
+  background-color: #cc6666;
+}
+
+pre.editor-colors {
+  background-color: #272822;
+  color: white;
+}
+pre.editor-colors .wrap-guide {
+  background-color: #5d5f51;
+}
+pre.editor-colors .indent-guide {
+  box-shadow: inset 1px 0 #424439;
+}
+pre.editor-colors .invisible-character {
+  color: #4f5145;
+}
+pre.editor-colors .gutter {
+  background-color: #272822;
+  color: #868686;
+}
+pre.editor-colors .gutter .line-number.cursor-line {
+  background-color: #39382e;
+  color: #868686;
+}
+pre.editor-colors .gutter .line-number.cursor-line-no-selection {
+  color: #868686;
+}
+pre.editor-colors .fold-marker:after,
+pre.editor-colors .gutter .line-number.folded,
+pre.editor-colors .gutter .line-number:after {
+  color: #CCC;
+}
+pre.editor-colors .invisible {
+  color: white;
+}
+pre.editor-colors .cursor {
+  color: white;
+}
+pre.editor-colors .selection .region {
+  background-color: #424242;
+}
+pre.editor-colors .search-results .syntax--marker .region {
+  background-color: transparent;
+  border: 1px solid #5d5f51;
+}
+pre.editor-colors .search-results .syntax--marker.current-result .region {
+  border: 1px solid white;
+}
+.syntax--comment {
+  color: #75715E;
+}
+.syntax--string {
+  color: #E6DB74;
+}
+.syntax--source {
+  color: white;
+}
+.syntax--source.syntax--sql.syntax--embedded.syntax--php {
+  color: #E6DB74;
+}
+.syntax--constant.syntax--character,
+.syntax--constant.syntax--language,
+.syntax--constant.syntax--numeric,
+.syntax--constant.syntax--other {
+  color: #AE81FF;
+}
+.syntax--keyword {
+  color: #F92672;
+}
+.syntax--storage {
+  color: #F92672;
+}
+.syntax--storage.syntax--type {
+  font-style: italic;
+  color: #66D9EF;
+}
+pre.editor-colors[mini] .scroll-view {
+  padding-left: 1px;
+}
+pre.editor-colors .search-results .syntax--marker .region {
+  background-color: transparent;
+  border: 1px solid #5d5f51;
+}
+pre.editor-colors .search-results .syntax--marker.current-result .region {
+  border: 1px solid white;
+}
+pre.editor-colors .syntax--gfm .syntax--markup.syntax--heading {
+  color: #A6E22E;
+  font-weight: bold;
+}
+pre.editor-colors .syntax--gfm .syntax--markup.syntax--underline {
+  color: #E6DB74;
+  text-decoration: underline;
+}
+pre.editor-colors .syntax--gfm .syntax--bold {
+  font-weight: bold;
+}
+pre.editor-colors .syntax--gfm .syntax--italic {
+  font-style: italic;
+}
+pre.editor-colors .syntax--gfm .syntax--raw {
+  color: #66D9EF;
+}
+pre.editor-colors .syntax--gfm .syntax--variable.syntax--list {
+  color: #F92672;
+  font-weight: bold;
+}
+pre.editor-colors .syntax--gfm .syntax--link {
+  color: #CCC;
+}
+pre.editor-colors .syntax--gfm .syntax--link .syntax--entity {
+  color: #AE81FF;
+}
+.syntax--entity.syntax--name.syntax--class {
+  text-decoration: none;
+  color: #A6E22E;
+}
+.syntax--entity.syntax--name.syntax--function {
+  color: #A6E22E;
+}
+.syntax--method-call .syntax--entity.syntax--name.syntax--function {
+  color: #66D9EF;
+}
+.syntax--entity.syntax--name.syntax--instance {
+  color: #66D9EF;
+}
+.syntax--entity.syntax--name.syntax--tag {
+  color: #F92672;
+}
+.syntax--entity.syntax--other.syntax--attribute-name {
+  color: #A6E22E;
+}
+.syntax--entity.syntax--other.syntax--inherited-class {
+  font-style: italic;
+  text-decoration: none;
+  color: #A6E22E;
+}
+.syntax--entity.syntax--other.syntax--class.syntax--jade {
+  color: #AE81FF;
+}
+.syntax--punctuation.syntax--definition.syntax--parameters,
+.syntax--punctuation.syntax--section.syntax--embedded,
+.syntax--punctuation.syntax--section.syntax--scope,
+.syntax--punctuation.syntax--separator,
+.syntax--punctuation.syntax--terminator.syntax--expression {
+  color: white;
+}
+.syntax--invalid {
+  color: #F8F8F0;
+  background-color: #F92672;
+}
+.syntax--invalid.syntax--deprecated {
+  background-color: #AE81FF;
+}
+.syntax--invalid.syntax--illegal {
+  background-color: #cc6666;
+  color: #272822;
+}
+.syntax--support.syntax--constant,
+.syntax--support.syntax--function {
+  color: #66D9EF;
+}
+.syntax--support.syntax--class,
+.syntax--support.syntax--type {
+  font-style: italic;
+  color: #66D9EF;
+}
+.syntax--variable {
+  color: white;
+}
+.syntax--variable.syntax--language.syntax--python,
+.syntax--variable.syntax--language.syntax--js {
+  color: #F92672;
+  font-style: italic;
+}
+.syntax--meta.syntax--tag {
+  color: white;
+}
+.syntax--meta.syntax--delimiter.syntax--period {
+  color: #F92672;
+}
+.syntax--meta.syntax--function-call:not(.syntax--js) {
+  color: #66D9EF;
+}
+.syntax--meta.syntax--function .syntax--variable {
+  font-style: italic;
+  color: #FD971F;
+}
+.leading-whitespace,
+.trailing-whitespace {
+  display: inline-block;
+}
+.syntax--php .syntax--punctuation.syntax--section.syntax--embedded {
+  font-weight: bold;
+  font-style: italic;
+}
+</style>
+
+  </head>
+  <body class="markdown-preview-plus-view">
+    <h1>朴素贝叶斯（Naive Bayes)</h1>
+<hr>
+<ul>
+<li>W:朴素贝叶斯笔记</li>
+<li>A:LJH</li>
+<li>T:2018-4-11 21:18:03</li>
+<li>V:1.0  初稿 初步定义格局 2018/4/26 下午3:38:22</li>
+<li>V:1.1  添加挽留玩家分析和恶性商店筛选，推导朴素贝叶斯</li>
+<li>V:2.0  添加朴素贝叶斯的实例和代码实现，并总结 2018-6-8 17:34:28</li>
+</ul>
+<hr>
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+<ul>
+<li><a href="#%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AFnaive-bayes">朴素贝叶斯（Naive Bayes)</a></li>
+<li><a href="#%E4%B8%80%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA">一.贝叶斯理论</a>
+<ul>
+<li><a href="#%E5%AE%9A%E5%88%99">定则</a></li>
+<li><a href="#%E6%8E%A8%E5%AF%BC">推导</a></li>
+<li><a href="#%E8%8C%83%E4%BE%8B">范例</a>
+<ul>
+<li><a href="#%E6%B0%B4%E6%9E%9C%E7%B3%96%E4%BE%8B%E5%AD%90">水果糖例子</a></li>
+<li><a href="#%E5%90%B8%E6%AF%92%E8%80%85%E6%A3%80%E6%B5%8B">吸毒者检测</a></li>
+<li><a href="#%E8%83%B0%E8%85%BA%E7%99%8C%E6%A3%80%E6%B5%8B">胰腺癌检测</a></li>
+<li><a href="#%E6%8B%BC%E5%86%99%E7%BA%A0%E6%AD%A3">拼写纠正</a></li>
+<li><a href="#%E4%B8%AD%E6%96%87%E5%88%86%E8%AF%8D">中文分词</a></li>
+<li><a href="#%E6%98%AF%E5%90%A6%E6%8C%BD%E7%95%99%E7%8E%A9%E5%AE%B6">是否挽留玩家</a></li>
+<li><a href="#%E6%81%B6%E6%80%A7%E5%95%86%E5%BA%97%E6%A3%80%E6%B5%8B">恶性商店检测</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E4%BA%8C%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF">二.朴素贝叶斯</a></li>
+<li><a href="#%E4%B8%89%E8%8C%83%E4%BE%8B">三.范例</a>
+<ul>
+<li><a href="#%E7%AD%9B%E9%80%89%E8%AE%BA%E5%9D%9B%E6%B1%A1%E8%BE%B1%E8%A8%80%E8%AE%BA">筛选论坛污辱言论</a></li>
+<li><a href="#%E5%9E%83%E5%9C%BE%E9%82%AE%E4%BB%B6%E5%88%86%E7%B1%BB">垃圾邮件分类</a></li>
+<li><a href="#rss%E6%BA%90%E5%88%86%E7%B1%BB">rss源分类</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9B%9B%E4%BB%A3%E7%A0%81%E5%AE%9E%E4%BE%8B-qqmessage">四.代码实例-qqmessage</a></li>
+<li><a href="#%E4%BA%94%E6%80%BB%E7%BB%93">五.总结</a>
+<ul>
+<li><a href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%90%E7%94%A8%E5%AE%9E%E4%BE%8B">贝叶斯运用实例</a></li>
+<li><a href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%90%E7%94%A8%E8%BF%87%E7%A8%8B">贝叶斯运用过程</a></li>
+<li><a href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%90%E7%94%A8%E7%9A%84%E5%BF%85%E9%A1%BB%E6%9D%A1%E4%BB%B6">贝叶斯运用的必须条件</a></li>
+<li><a href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E8%BF%90%E7%94%A8%E7%9A%84%E5%9C%BA%E6%99%AF">贝叶斯运用的场景</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BC%95%E7%94%A8%E6%88%96%E5%8F%82%E8%80%83">Ⅰ.引用或参考</a></li>
+<li><a href="#%E9%99%84%E5%BD%95">Ⅱ.附录</a>
+<ul>
+<li><a href="#1%E5%85%A8%E6%A6%82%E7%8E%87%E5%85%AC%E5%BC%8F">[1]全概率公式</a></li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+<h1>一.贝叶斯理论</h1>
+<p><img src="markdown-img-paste-2018042613525447.png" alt="贝叶斯理论"></p>
+<h2>定则</h2>
+<span class="math"><script type="math/tex; mode=display">P(A|B)=\frac{P(B|A)*P(A)}{P(B)}
+</script></span>
+<p>名词解析：</p>
+<ul>
+<li><span class="math"><script type="math/tex">P(A|B)</script></span> 是已知B发生后A的条件概率，所以B是A的后验概率。</li>
+<li><span class="math"><script type="math/tex">P(A)</script></span> 是A的先验概率。</li>
+<li><span class="math"><script type="math/tex">P(B|A)</script></span> 是已知A发生后B的条件概率，所以A是B的后验概率。</li>
+<li><span class="math"><script type="math/tex">P(B)</script></span> 是B的先验概率。</li>
+</ul>
+<p>表述为：</p>
+<ul>
+<li>后验概率 = (可能性*先验概率)/标准化常量</li>
+</ul>
+<p>通常把 <span class="math"><script type="math/tex">\frac{P(B|A)}{P(B)}</script></span> 称作标准相似度</p>
+<ul>
+<li>后验概率 = 标准相似度*先验概率</li>
+</ul>
+<h2>推导</h2>
+<p>条件概率定则：</p>
+<span class="math"><script type="math/tex; mode=display">方程(1): P(A|B)=\frac{P(A\cap B)}{P(B)}
+</script></span>
+<span class="math"><script type="math/tex; mode=display">方程(2): P(B|A)=\frac{P(A\cap B)}{P(A)}
+</script></span>
+<p>结合方程（1）和方程（2） 得到:</p>
+<span class="math"><script type="math/tex; mode=display">方程(3): P(A|B)P(B)=P(A\cap B)=P(B|A)P(A)
+</script></span>
+<p>对方程（3）同时除以 <span class="math"><script type="math/tex">P(B)</script></span>,若 <span class="math"><script type="math/tex">P(B)</script></span> 非0，可以得到贝叶斯定理：</p>
+<span class="math"><script type="math/tex; mode=display">P(A|B)=\frac{P(B|A)*P(A)}{P(B)}
+</script></span>
+<p>解释：
+事件A在事件B发生的条件下的概率 = 事件A与事件B同时发生的概率 / 事件B发生的概率</p>
+<h2>范例</h2>
+<h3>水果糖例子</h3>
+<p>如图：<img src="markdown-img-paste-20180426142402784.png" alt="水果糖例子">
+假设：两个一模一样的碗，一号碗有30颗水果糖和10颗巧克力糖，二号碗有水果糖和巧克力糖各20颗。</p>
+<p>问题：现在随机选择一个碗，从中摸出一颗糖，发现是水果糖。请问这颗水果糖来自一号碗的概率有多大？</p>
+<p>分析：<span class="math"><script type="math/tex">P(H1)</script></span> 表示选择1号碗和选择2号碗的概率分别为0.5。E表示水果糖，所以问题转换成，P(H_1|E)在发现是水果糖的情况下，是从1号碗里获取的概率。</p>
+<span class="math"><script type="math/tex; mode=display">方程(4):P(H_1|E) = \frac{P(E|H_1)*P(H_1)}{P(E)} 
+</script></span>
+<p>由方程（4）得：</p>
+<span class="math"><script type="math/tex; mode=display">方程(5):P(H_1|E) = P(H_1)*\frac{P(E|H_1)}{P(E)} 
+</script></span>
+<p>由附录[1]全概率公式得：</p>
+<span class="math"><script type="math/tex; mode=display">P(E)=P(E|H_1)P(H_1) + P(E|H_2)P(H_2)
+</script></span>
+<p>得：0.75 * 0.5 + 0.5 * 0.5 =0.625
+所以</p>
+<span class="math"><script type="math/tex; mode=display">P(H_1|E) = 0.5 * \frac{0.75}{0.625} = 0.6
+</script></span>
+<p>所以获取的水果球是在1号碗中获取的概率为0.6，说明是正反馈。取出水果糖之后，H1事件的可能性得到了增强。</p>
+<h3>吸毒者检测</h3>
+<p><img src="markdown-img-paste-20180426150342904.png" alt="吸毒者检测">
+分析：</p>
+<ul>
+<li>假设：“D”为雇员吸毒事件，“N”为雇员不吸毒事件，“+”为检测呈阳性事件</li>
+<li><span class="math"><script type="math/tex">P(D)</script></span> = 为雇员吸毒事件，由图中假设2可得0.005</li>
+<li><span class="math"><script type="math/tex">P(N)</script></span> = 为雇员不吸毒事件，有 <span class="math"><script type="math/tex">P(N) = 1- P(D) = 0.995</script></span></li>
+<li><span class="math"><script type="math/tex">P(+|D)</script></span> = 吸毒检测为阳性，由图中假设1可得0.99</li>
+<li><span class="math"><script type="math/tex">P(+|N)</script></span> = 非吸毒则检测为阳性，由图中假设2可得0.01</li>
+<li><span class="math"><script type="math/tex">P(+)</script></span> 员工检测为阳性的事件是，吸毒检测为阳性和非吸毒检测为阳性的集合，由附录[1]全概率公式得： <span class="math"><script type="math/tex">P(+) = P(+\cap D) + P(+\cap N) = P(+|D)*P(D) + P(+|N)*P(N) = 0.0148</script></span>
+所以检测是阳性的吸毒者概率为：</li>
+</ul>
+<span class="math"><script type="math/tex; mode=display">P(D|+) = \frac{P(+|D)*P(D)}{P(+)} = \frac{0.99*0.005}{0.0148} = 0.3344
+</script></span>
+<p>同理检测是非阳性的非吸毒者的概率为：</p>
+<span class="math"><script type="math/tex; mode=display">P(N|(-)) = \frac{P(-|N)*P(N)}{P(-)}=\frac{0.99*0.995}{0.986} = 0.999
+</script></span>
+<p>结论：
+即使检测率为99%,但是贝叶斯告诉我们，检测呈阳性，只有33%的概率是吸毒的，不吸毒的概率更大。假阳性高，则检测结果不可靠。</p>
+<h3>胰腺癌检测</h3>
+<p><img src="markdown-img-paste-20180503180114311.png" alt="胰腺癌检测">
+基于贝叶斯定理：即使100%的胰腺癌症患者都有某症状，而某人有同样的症状，绝对不代表该人有100%的概率得胰腺癌，还需要考虑先验概率，假设胰腺癌的发病率是十万分之一，而全球有同样症状的人有万分之一，则此人得胰腺癌的概率只有十分之一，90%的可能是是假阳性。</p>
+<h3>拼写纠正</h3>
+<p><img src="markdown-img-paste-20180503184011454.png" alt="拼写纠正">
+经典著作《人工智能：现代方法》的作者之一 Peter Norvig 曾经写过一篇介绍如何写一个拼写检查/纠正器的文章。</p>
+<blockquote>
+<p>问题：是我们看到用户输入了一个不在字典中的单词，我们需要去猜测：“这个家伙到底真正想输入的单词是什么呢？”
+由朴素贝叶斯定定理:</p>
+</blockquote>
+<ul>
+<li>A事件：我们猜测他想输入的单词</li>
+<li>B事件:实际输入的单词</li>
+<li><span class="math"><script type="math/tex">P(A|B)</script></span>:我们需要计算用户最想输入的单词。</li>
+<li><span class="math"><script type="math/tex">P(B|A)</script></span>:猜测的单词是实际输入的单词的概率。</li>
+<li><span class="math"><script type="math/tex">P(A)</script></span>:猜测的单词的概率（由样本生成）</li>
+<li><span class="math"><script type="math/tex">P(B)</script></span>:实际输入的单词的概率（由于P(B)无法计算）所以固定为一样</li>
+</ul>
+<p>所以计算公式：</p>
+<span class="math"><script type="math/tex; mode=display">P(A|B) = \frac{P(B|A)*P(A)}{P(B)} ~= P(B|A)*P(A) 
+</script></span>
+<ul>
+<li>所以只要求 <span class="math"><script type="math/tex">P(B|A)*P(A)</script></span> 就可以获得数据了。</li>
+</ul>
+<h3>中文分词</h3>
+<p><img src="markdown-img-paste-20180509181958663.png" alt="中文分词">
+如何找到一个句子最好得分词，需要有天真得假设，一个词语得出现只和前后几个词语有关。</p>
+<h3>是否挽留玩家</h3>
+<p><img src="markdown-img-paste-20180531214245990.png" alt="是否挽留玩家"></p>
+<p>由图中计算未读信息大于5的流失的概率为 <span class="math"><script type="math/tex">P(A|B)</script></span>，由朴素贝模型得：</p>
+<span class="math"><script type="math/tex; mode=display">P(A|B) = \frac{P(B|A)*P(A)}{P(B)} = \frac{0.93*0.3}{0.35} = 0.80
+</script></span>
+<p>实情况并不会像这个例子这么理想化,现实情况中，你可能要找上一堆觉得能够凸显用户流失的行为，然后一一做贝叶斯规则，来测算他们是否能显著识别用户流失。这取决于你对业务的理解程度和直觉的敏锐性。另外，你还需要定义“流失”和“活跃”，还需要定义贝叶斯规则计算的基础样本，这决定了结果的精度。</p>
+<h3>恶性商店检测</h3>
+<p>为了肃清电商平台的恶性商店。</p>
+<ul>
+<li><span class="math"><script type="math/tex">P(E)</script></span> 目前商店上的恶性客户的比例为0.2%</li>
+<li><span class="math"><script type="math/tex">P(P|E)</script></span>  表示恶性商户被M1模型检测为恶性商户的概率。90%</li>
+<li><span class="math"><script type="math/tex">P(P|~E)</script></span> 表示非恶性商户被M1模型检测为恶性商户的概率为8%</li>
+<li>那么P(E|P) 被M1模型判定为恶性商户的概率为：</li>
+</ul>
+<span class="math"><script type="math/tex; mode=display">P(E|P)=\frac{P(P|E)P(E)}{P(P)}
+</script></span>
+<p>由附录[1]全概率公式得：</p>
+<span class="math"><script type="math/tex; mode=display">P(P) = P(P|E)*P(E) +P(P|~E)*P(~E) = 0.9*0.002 + 0.998*0.08=0.08164
+</script></span>
+<p>所以</p>
+<span class="math"><script type="math/tex; mode=display">P(E|P)=\frac{0.9*0.002}{0.08164} = 0.022
+</script></span>
+<p>被M1模型判别为恶性商户，说明这家商户做出恶性行为的概率是一般商户的11倍，那么，就非常有必要用进一步的手段进行检查了。</p>
+<h1>二.朴素贝叶斯</h1>
+<p>朴素贝叶斯的理念非常朴素，就是假设所有的特征属性都是独立的，挑选出概率最大的类别，就是最后的结果。
+简单的推导思路：</p>
+<ul>
+<li>设置预测项目 <span class="math"><script type="math/tex">x={a_1,a_2,...a_n}有n个特征属性</script></span></li>
+<li>有类别集合 <span class="math"><script type="math/tex">C={y_1,y_2,...,y_n}</script></span></li>
+<li>要预测x属于C中的哪个类别</li>
+<li>则计算 $P(y_1|x),P(y_2|x),…,P(y_n|x)$的概率</li>
+<li>如果 <span class="math"><script type="math/tex">P(y_k|x) = argmax{P(y_1|x),P(y_2|x),...P(y_n|x)}</script></span>,则 <span class="math"><script type="math/tex">x \in y_k</script></span></li>
+<li>统计各类别下各个特性属性的条件概率估计：<span class="math"><script type="math/tex">P(a_1|y_1),P(a_2|y_1),...P(a_m|y_1);P(a_1|y_2),P(a_2|y_2),...,P(a_m|y_2);...,P(a_1|y_n),P(a_2|y_n)...P(a_m|y_n)</script></span></li>
+<li>根据贝叶斯定理，要求$P(y_i|x)$则有公式</li>
+</ul>
+<span class="math"><script type="math/tex; mode=display">P(y_i|x)=\frac{P(x|y_i)P(y_i)}{p(x)}
+</script></span>
+<ul>
+<li>假设x中的各个特征的属性是独立的，那么 $P(x)$是固定的，那么有：</li>
+</ul>
+<span class="math"><script type="math/tex; mode=display">P(y_i|x) = P(x|y_i)P(y_i) = P(a_1|y_i)*P(a_2|y_i)...P(a_m)P(y_i)=P(y_i)argmaxP(a_j|y_i)
+</script></span>
+<ul>
+<li>所以在计算 <span class="math"><script type="math/tex">P(y_i|x)后再计算所有 $P(y_n|x)</script></span>,找出最大的 <span class="math"><script type="math/tex">P(y_k|x)</script></span>，则 <span class="math"><script type="math/tex">x \in y_k</script></span></li>
+</ul>
+<h1>三.范例</h1>
+<h2>筛选论坛污辱言论</h2>
+<p><img src="markdown-img-paste-20180608105541618.png" alt="筛选论坛侮辱言论">
+采用伯努利朴素贝叶斯模型，在代码中就是词集模型，只检查特征是否出现，不计算特征出现的次数。核心就是：</p>
+<ul>
+<li>计算侮辱言论中的所有词汇在所有的词汇中出现的比例用来表示这个单词能判断是否是侮辱言论的权重 <span class="math"><script type="math/tex">\frac{Num_word}{\sum_{k=1}^nk*num}</script></span> ，同样普通言论也是如此。</li>
+<li>最后测试言论根据权重计算与相应类别的相似度，相似度越高的类别，这是朴素贝叶斯要寻找的类别。</li>
+</ul>
+<blockquote>
+<p>在利用python实现时，需要注意几个问题：</p>
+<ul>
+<li>分子为0的情况导致的结果为0，设置初始分子为1，初始分母为2</li>
+<li>下溢出问题，由于python对非常小的数进行相乘可能或得到不正确的数值，所以采用自然对数函数ln，利用函数的最大值是一致。
+<img src="markdown-img-paste-20180608114545801.png" alt="normal distribution 正态分布"></li>
+</ul>
+</blockquote>
+<h2>垃圾邮件分类</h2>
+<p><img src="markdown-img-paste-20180608135951790.png" alt="垃圾邮件分类">
+采用词袋模型，不止看特征是否出现，同时特征出现的数量也会被统计。
+核心：</p>
+<ul>
+<li>计算统计垃圾邮件和普通邮件的所有词汇，并统计垃圾邮件中和普通邮件中的词汇占各自所有的词汇的比例，最后测试邮件，计算与垃圾邮件和普通邮件的相似度，相似度更大的则为所选择。</li>
+</ul>
+<blockquote>
+<p>在利用Python实现时，需要注意以下几个问题：</p>
+<ul>
+<li>切分文本时，由于只考虑词语，所以不需要考虑是否是大小写，所以统一转换为小写字符，并且由于英文字符有空字符，所以要去除掉空字符</li>
+<li>为了更好的测试分类的正确性，采用了交叉留存验证，假设有50封垃圾邮件，50封普通邮件，我们随机用30封普通邮件和30封垃圾邮件进行训练分类，其余的邮件用来测试，反复测试，获得一个平均的算法的错误率。</li>
+</ul>
+</blockquote>
+<h2>rss源分类</h2>
+<p>由于这个分类和垃圾邮件分类非常相似，除了在数据来源和以下方面有一些区别：</p>
+<blockquote>
+<ul>
+<li>数据来源与rss上</li>
+<li>由于rss源数据上，有许多的高频词是无意义的，去除一定的高频词对算法是有所帮助的。</li>
+<li>同时发现高频词语基本都是一些停用词语，就是一些人统计出来的无意义的高频词语，对原始数据剔除相关的词语，会对算法带来一定的提交</li>
+</ul>
+</blockquote>
+<h1>四.代码实例-qqmessage</h1>
+<ul>
+<li>qqmessage：是根据朴素贝叶斯对qq聊天记录是属于哪个人说话的分类</li>
+<li>想法：最常用的就是qq，如果qq能识别出是否是对方，是否就能避免此人是否是骗子？我想有一定的合理性，可以提出一个概率，当对方不是本人的概率超过一个阈值的时候，提示用户，这个人可能是骗子。</li>
+<li>思路：和以上的实例的思路是一致的，只有一些小区别：</li>
+<li>
+<ul>
+<li>qq聊天记录，是直接导出来的txt格式的文件，数据要从文本中获取</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>中文分词比较复杂，所以用jieba库直接切割中文词语了，同时去除了只包含一个词的</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>使用了中文的停用词，加上由于qq聊天记录的[图片][表情]文字是不需要的也去掉了。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>伪代码：</p>
+</blockquote>
+<pre class="editor-colors lang-python"><span class="syntax--source syntax--python"><span>get data </span><span class="syntax--keyword syntax--control syntax--import syntax--from syntax--python"><span>from</span></span><span> qqmessage</span></span>
+<span class="syntax--source syntax--python"><span>calc full text list F_T,doc text list D_T,</span><span class="syntax--storage syntax--type syntax--class syntax--python"><span>class</span></span><span> text list C_T</span></span>
+<span class="syntax--source syntax--python"><span>create a vocab list V_L </span><span class="syntax--keyword syntax--control syntax--import syntax--from syntax--python"><span>from</span></span><span> D_T</span></span>
+<span class="syntax--source syntax--python"><span>remove V_L</span><span class="syntax--string syntax--quoted syntax--single syntax--single-line syntax--python"><span class="syntax--punctuation syntax--definition syntax--string syntax--begin syntax--python"><span>'</span></span><span>s stopwords</span><span class="syntax--invalid syntax--illegal syntax--unclosed-string syntax--python"><span></span></span></span></span>
+<span class="syntax--source syntax--python"><span>random select some train_set,other test_set</span></span>
+<span class="syntax--source syntax--python"><span class="syntax--keyword syntax--control syntax--repeat syntax--python"><span>for</span></span><span> i </span><span class="syntax--keyword syntax--operator syntax--logical syntax--python"><span>in</span></span><span> train_set:</span></span>
+<span class="syntax--source syntax--python"><span>    train_matrix </span><span class="syntax--meta syntax--function-call syntax--python"><span class="syntax--entity syntax--name syntax--function syntax--python"><span>add</span></span><span> </span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--function-call syntax--arguments syntax--python"><span class="syntax--meta syntax--function-call syntax--python"><span class="syntax--entity syntax--name syntax--function syntax--python"><span>D_T</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--function-call syntax--arguments syntax--python"><span>i</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span><span>’s vector</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span></span>
+<span class="syntax--source syntax--python"><span>    class_list add </span><span class="syntax--meta syntax--function-call syntax--python"><span class="syntax--entity syntax--name syntax--function syntax--python"><span>C_T</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--function-call syntax--arguments syntax--python"><span>i</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span></span>
+<span class="syntax--source syntax--python"><span>calc p0_vector,p1_vector,pa_insult </span><span class="syntax--keyword syntax--control syntax--import syntax--from syntax--python"><span>from</span></span><span> train_matrix,class_list</span></span>
+<span class="syntax--source syntax--python"><span class="syntax--keyword syntax--control syntax--repeat syntax--python"><span>for</span></span><span> j </span><span class="syntax--keyword syntax--operator syntax--logical syntax--python"><span>in</span></span><span> test_set:</span></span>
+<span class="syntax--source syntax--python"><span>    </span><span class="syntax--keyword syntax--control syntax--conditional syntax--python"><span>if</span></span><span> </span><span class="syntax--meta syntax--item-access syntax--python"><span>C_L</span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--python"><span>[</span></span><span class="syntax--meta syntax--item-access syntax--arguments syntax--python"><span>j</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--python"><span>]</span></span></span><span> </span><span class="syntax--keyword syntax--operator syntax--comparison syntax--python"><span>!=</span></span><span> </span><span class="syntax--meta syntax--function-call syntax--python"><span class="syntax--entity syntax--name syntax--function syntax--python"><span>classify_native_bayes</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--function-call syntax--arguments syntax--python"><span class="syntax--meta syntax--function-call syntax--python"><span class="syntax--entity syntax--name syntax--function syntax--python"><span>D_T</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--function-call syntax--arguments syntax--python"><span>j</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span><span class="syntax--punctuation syntax--separator syntax--arguments syntax--python"><span>,</span></span><span>p0</span><span class="syntax--punctuation syntax--separator syntax--arguments syntax--python"><span>,</span></span><span>p1</span><span class="syntax--punctuation syntax--separator syntax--arguments syntax--python"><span>,</span></span><span>pa</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span><span>:</span></span>
+<span class="syntax--source syntax--python"><span>        errornum </span><span class="syntax--keyword syntax--operator syntax--assignment syntax--augmented syntax--python"><span>+=</span></span><span> </span><span class="syntax--constant syntax--numeric syntax--integer syntax--decimal syntax--python"><span>1</span></span></span>
+<span class="syntax--source syntax--python"><span class="syntax--keyword syntax--other syntax--python"><span>print</span></span><span>(</span><span class="syntax--string syntax--quoted syntax--double syntax--single-line syntax--python"><span class="syntax--punctuation syntax--definition syntax--string syntax--begin syntax--python"><span>"</span></span><span>the error rate is </span><span class="syntax--constant syntax--other syntax--placeholder syntax--python"><span>{0}</span></span><span class="syntax--punctuation syntax--definition syntax--string syntax--end syntax--python"><span>"</span></span></span><span class="syntax--meta syntax--method-call syntax--python"><span class="syntax--punctuation syntax--separator syntax--method syntax--period syntax--python"><span>.</span></span><span class="syntax--entity syntax--name syntax--function syntax--python"><span>format</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--method-call syntax--arguments syntax--python"><span>errornum </span><span class="syntax--keyword syntax--operator syntax--arithmetic syntax--python"><span>/</span></span><span> </span><span class="syntax--meta syntax--function-call syntax--python"><span class="syntax--support syntax--function syntax--builtin syntax--python"><span>len</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--begin syntax--bracket syntax--round syntax--python"><span>(</span></span><span class="syntax--meta syntax--function-call syntax--arguments syntax--python"><span>test_set</span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span></span><span class="syntax--punctuation syntax--definition syntax--arguments syntax--end syntax--bracket syntax--round syntax--python"><span>)</span></span></span><span>)</span></span>
+</pre>
+<ul>
+<li>
+<blockquote>
+<p>Code:<a href="https://github.com/Double-Luo/continuestudy/tree/master/algorithm/learning/bayes">https://github.com/Double-Luo/continuestudy/tree/master/algorithm/learning/bayes</a></p>
+</blockquote>
+</li>
+</ul>
+<h1>五.总结</h1>
+<h2>贝叶斯运用实例</h2>
+<table>
+   <tbody><tr>
+      <td>类别</td>
+      <td>实例</td>
+      <td>问题简述</td>
+      <td>tips</td>
+   </tr>
+   <tr><td rowspan="8">贝叶斯</td>
+   </tr><tr>
+      <td>水果糖例子</td>
+      <td>摸出一颗水果糖，来自一号碗的概率多少？</td>
+      <td>概率大于0.5，说明是正反馈。</td>
+   </tr>
+   <tr>
+      <td>吸毒者检测</td>
+      <td>检测是阳性的员工是吸毒者的概率是多少？</td>
+      <td>假阳性高，泽检测结果不可靠。</td>
+   </tr>
+   <tr>
+      <td>胰腺癌检测</td>
+      <td>在某种症状的情况下，患胰腺癌症的概率为?</td>
+      <td>即使患病的人100%都有这个症状，也不能证明某人有这个症状就得病了。</td>
+   </tr>
+   <tr>
+      <td>拼写纠正</td>
+      <td>一个错误的单词最可能是什么单词？</td>
+      <td>计算错误的单词是所有可能的单词的概率最高的那个。</td>
+   </tr>
+   <tr>
+      <td>中文分词</td>
+      <td>南京市长江大桥该分成什么样子的分词？</td>
+      <td>天真的假设，一个词语得出现只和前后几个词语有关。</td>
+   </tr>
+   <tr>
+      <td>是否挽留玩家</td>
+      <td>未读消息大于5的玩家流失的概率为?</td>
+      <td>如何找到凸显特征的行为，并定义行为的类别很重要。</td>
+   </tr>
+   <tr>
+      <td>恶性商店检测</td>
+      <td>被模型判定为恶性商户的概率为？</td>
+      <td>需要与先验概率比较，如果远远大于先验概率，那么就需要引起足够的注意。</td>
+   </tr>
+   <tr><td rowspan="5">朴素贝叶斯</td>
+   </tr><tr>
+      <td>筛选论坛侮辱言论</td>
+      <td>一个评论是否是侮辱言论？</td>
+      <td>相似度越高的类别，就是归属的类别。</td>
+   </tr>
+   <tr>
+      <td>垃圾邮箱分类</td>
+      <td>一封邮件是否是垃圾邮件？</td>
+      <td>使用交叉留存验证分类的错误率</td>
+   </tr>
+   <tr>
+      <td>Rss源的分类</td>
+      <td>一个Rss内容是属于哪个Rss源？</td>
+      <td>去除高频词语，和停用词可以降低分类的错误率</td>
+   </tr>
+   <tr>
+      <td>QQ信息的识别</td>
+      <td>一个QQ消息是属于哪个人的？</td>
+      <td>中文分词和中文的停用词，适当的添加的自己停用词可以降低分类的错误率</td>
+   </tr>
+</tbody></table>
+<h2>贝叶斯运用过程</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>收集数据</td>
+<td>可以使用任意方法</td>
+</tr>
+<tr>
+<td>准备数据</td>
+<td>数值型或者布尔型</td>
+</tr>
+<tr>
+<td>分析数据</td>
+<td>有大量特征时，画直方图更明显</td>
+</tr>
+<tr>
+<td>训练算法</td>
+<td>计算不同的独立特征的条件概率</td>
+</tr>
+<tr>
+<td>测试算法</td>
+<td>使用交叉留存验证算法的错误率</td>
+</tr>
+<tr>
+<td>使用算法</td>
+<td>文档分类，可以在任意的场景使用</td>
+</tr>
+</tbody>
+</table>
+<h2>贝叶斯运用的必须条件</h2>
+<table>
+<thead>
+<tr>
+<th>必须条件</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>已知类别的先验概率P(y_1,…y_n)可计算</td>
+<td>只有知道已知类别的先验概率P(y_1,…y_n)才可以计算P(y_1,…,y_n)的后验概率，P(y_1</td>
+</tr>
+<tr>
+<td>当需求出具体概率时，需要知道p(x)的先验概率</td>
+<td>这样才能求出两个事件的标准相似度</td>
+</tr>
+<tr>
+<td>当x和y都有无数特征时，特征之间必须要独立，是不相关的</td>
+<td>否则将计算量非常大</td>
+</tr>
+</tbody>
+</table>
+<h2>贝叶斯运用的场景</h2>
+<table>
+<thead>
+<tr>
+<th>可能运用的场景</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档分类</td>
+<td>类似垃圾邮件，侮辱言论，Rss分类，qqmessage都算</td>
+</tr>
+<tr>
+<td>概率预测</td>
+<td>类似吸毒者检测，胰腺癌检测，水果糖例子，恶性商店检测，是否挽留玩家</td>
+</tr>
+<tr>
+<td>文本分词有纠正</td>
+<td>中文分词，拼写纠正等。</td>
+</tr>
+<tr>
+<td>歌曲推荐</td>
+<td>可以先通过KNN算法推荐出100首歌曲，然后再经过朴素贝叶斯，根据用户原有的习惯特征，筛选出10首或者20首的歌曲作为每日推荐。</td>
+</tr>
+<tr>
+<td>行程自动安排</td>
+<td>有那么一款App，自动导航到一个商场时，自动根据玩家的先验概率，计算并判断出玩家可能去哪里，然后筛选出多个地点供玩家选择。</td>
+</tr>
+<tr>
+<td>代码智能补全</td>
+<td>玩家输入的代码，自动检查玩家可能输入的字符是什么，然后在库中寻找，概率最高的，然后再显示出来，比如先读取所有的代码库中，求出先验概率，然后根据输入预测玩家可能要输入什么，然后做出提示，然后用户可自行输出相应的文字。</td>
+</tr>
+<tr>
+<td>购物推荐</td>
+<td>和生活相关的，比如玩家买了电磁炉，很有可能就要买锅什么的。关联购买的，这个放到关联分析那部分去做。</td>
+</tr>
+</tbody>
+</table>
+<h1>Ⅰ.引用或参考</h1>
+<ul>
+<li>在[0]中，通过分析算法思想（用一个现实中的例子来进行举例），理论基础-朴素贝叶斯理论，数据预处理-向量化，代码解读和算法优化、总结出朴素贝叶斯，虽然
+简单粗暴，但是在某些领域却非常有效，比如垃圾邮件过滤。</li>
+<li>在[1]中，通过水果糖的例子和假阳性的问题分析了贝叶斯理论的用处，并引申出，“假阳性"和"假阴性”，哪一个才是医学检验的主要风险？
+在[2]中，描述了联合概率的使用，优化分类器的效果。</li>
+<li>在[3]中，详细简述了，贝叶斯定理的定义，推导、扩展、和范例（吸毒者检测、胰腺癌检测、不良种子检测）。并简述了假阳性高，则检测的结果不可靠。</li>
+<li>在[4]中，使用语言的二异性引导，简述拉普拉斯说的概率论只是把常识用数学公式表达了出来。并使用拼写纠正，找到最可能与输入词距离最近的词语，且先
+验概率高的、并用中文分词、统计机器翻译、贝叶斯图像识别、最大似然与最小二乘的例子反应了贝叶斯定理的应用。</li>
+<li>在[5]中，作者以现实中的例子，是否要对玩家进行挽留和如何识别出恶性商铺，并对理论和推导进行了详细的说明。并提供了R语言的实现。</li>
+</ul>
+<hr>
+<ul>
+<li>[0] 深入理解朴素贝叶斯（Naive Bayes） <a href="https://blog.csdn.net/li8zi8fa/article/details/76176597">https://blog.csdn.net/li8zi8fa/article/details/76176597</a></li>
+<li>[1] 贝叶斯推断及其互联网应用（一）：定理简介    <a href="http://www.ruanyifeng.com/blog/2011/08/bayesian_inference_part_one.html">http://www.ruanyifeng.com/blog/2011/08/bayesian_inference_part_one.html</a></li>
+<li>[2] 贝叶斯推断及其互联网应用（二）：过滤垃圾邮件 <a href="http://www.ruanyifeng.com/blog/2011/08/bayesian_inference_part_two.html">http://www.ruanyifeng.com/blog/2011/08/bayesian_inference_part_two.html</a></li>
+<li>[3] 贝叶斯定理 <a href="https://zh.wikipedia.org/wiki/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%AE%9A%E7%90%86">https://zh.wikipedia.org/wiki/贝叶斯定理</a></li>
+<li>[4] 数学之美番外篇：平凡而又神奇的贝叶斯方法 <a href="http://mindhacks.cn/2008/09/21/the-magical-bayesian-method/">http://mindhacks.cn/2008/09/21/the-magical-bayesian-method/</a></li>
+<li>[5] 我理解的朴素贝叶斯模型 @<a href="https://www.cnblogs.com/nxld/p/6607943.html">https://www.cnblogs.com/nxld/p/6607943.html</a></li>
+</ul>
+<h1>Ⅱ.附录</h1>
+<h2>[1]全概率公式</h2>
+<ul>
+<li>样本空间S由A与A’公共组合构成。
+<img src="markdown-img-paste-20180426143647533.png" alt="样本空间S"></li>
+<li>B事件，可划分为两部分，一部分是A与B的交集，一部分是A’与B的交集。
+<img src="markdown-img-paste-20180426144042111.png" alt="样本空间B">
+所以：</li>
+</ul>
+<span class="math"><script type="math/tex; mode=display">P(B)=P(B\cap A) + P(B\cap A')
+</script></span>
+<p>由方程（1）可得：</p>
+<span class="math"><script type="math/tex; mode=display">P(B\cap A)=P(B|A)*P(A)
+</script></span>
+<span class="math"><script type="math/tex; mode=display">P(B\cap A')=P(B|A')*P(A')
+</script></span>
+<p>所以：</p>
+<span class="math"><script type="math/tex; mode=display">P(B)=P(B|A)*P(A) + P(B|A')*P(A')
+</script></span>
+<p>带入条件概率公式：</p>
+<span class="math"><script type="math/tex; mode=display">P(A|B) = \frac{P(B|A)*P(A)}{P(B|A)*P(A) + P(B|A')*P(A')}
+</script></span>
+<p>含义：
+如果A和A’构成样本空间的一个划分，那么事件B的概率，就等于A和A’的概率分别乘以B对这两个事件的条件概率之和。</p>
+
+  </body>
+</html>
